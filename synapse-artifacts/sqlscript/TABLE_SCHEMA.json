@@ -1,0 +1,17 @@
+{
+	"name": "TABLE_SCHEMA",
+	"properties": {
+		"content": {
+			"query": "SELECT \n    TABLE_SCHEMA AS SchemaName,\n    TABLE_NAME AS TableName\nFROM \n    INFORMATION_SCHEMA.TABLES\nWHERE \n    TABLE_TYPE = 'BASE TABLE' and TABLE_SCHEMA = 'airbnb'\nORDER BY \n    SchemaName, TableName;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "sqlpool_booking_dev",
+				"poolName": "sqlpool_booking_dev"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
