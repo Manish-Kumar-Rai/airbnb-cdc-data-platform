@@ -33,6 +33,26 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_cosmosDB_BookingDataSource')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_cosmosDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "CosmosDbSqlApiCollection",
+				"schema": {},
+				"typeProperties": {
+					"collectionName": "bookings"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_cosmosDB')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_customerDataArchive')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -86,6 +106,229 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_adls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_synapse_BookingFact')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_synSQLPoolDedicated",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "booking_id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "customer_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "listing_id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "booking_created_at",
+						"type": "date"
+					},
+					{
+						"name": "checkin_date",
+						"type": "date"
+					},
+					{
+						"name": "checkout_date",
+						"type": "date"
+					},
+					{
+						"name": "nights",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "lead_time_days",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "guests_adults",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "guests_children",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "guests_infants",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "price_nightly",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "cleaning_fee",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "total_amount",
+						"type": "decimal",
+						"precision": 14,
+						"scale": 2
+					},
+					{
+						"name": "currency",
+						"type": "nvarchar"
+					},
+					{
+						"name": "country_code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "city",
+						"type": "nvarchar"
+					},
+					{
+						"name": "channel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "device_type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "cancellation_ts",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "cancellation_reason",
+						"type": "nvarchar"
+					},
+					{
+						"name": "updated_at",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "airbnb",
+					"table": "fact_booking"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_synSQLPoolDedicated')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_synapse_customerDim')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_synSQLPoolDedicated",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "first_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "phone_number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "address",
+						"type": "nvarchar"
+					},
+					{
+						"name": "city",
+						"type": "nvarchar"
+					},
+					{
+						"name": "state",
+						"type": "nvarchar"
+					},
+					{
+						"name": "country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "zip_code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "signup_date",
+						"type": "date"
+					},
+					{
+						"name": "last_login",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "total_bookings",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "total_spent",
+						"type": "decimal",
+						"precision": 14,
+						"scale": 2
+					},
+					{
+						"name": "preferred_language",
+						"type": "nvarchar"
+					},
+					{
+						"name": "referral_code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "account_status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "airbnb",
+					"table": "dim_customer"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_synSQLPoolDedicated')]"
 			]
 		},
 		{
