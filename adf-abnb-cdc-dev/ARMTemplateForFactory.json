@@ -33,6 +33,91 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_loadBookingFact')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_bookingTransformationActivity",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_BookingTransformation",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BookingSourceCosmosDB": {},
+									"SynapseBookingFactTarget": {},
+									"synapseBookingFactWrite": {}
+								}
+							},
+							"staging": {
+								"linkedService": {
+									"referenceName": "ls_adls",
+									"type": "LinkedServiceReference"
+								},
+								"folderPath": "synapse-data"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine",
+							"continuationSettings": {
+								"customizedCheckpointKey": "c0f1d828-2772-4283-a362-7b74994f8b5a"
+							}
+						}
+					},
+					{
+						"name": "sp_PopulateAggregateTable",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "df_bookingTransformationActivity",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[airbnb].[BookingAggregation]"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_synSQLPoolDedicated",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_BookingTransformation')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_synSQLPoolDedicated')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_loadCustomerDim')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
