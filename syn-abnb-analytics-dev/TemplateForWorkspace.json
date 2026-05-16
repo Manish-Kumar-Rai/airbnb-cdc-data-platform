@@ -99,7 +99,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "-- This is needed to setup linked service in ADF pipeline successfully for dedicated SQL pool\n-- Create a user for the ADF pipeline\nCREATE USER [adf-abnb-cdc-dev] FROM EXTERNAL PROVIDER;\n\nEXEC sp_addrolemember 'db_datareader', [adf-abnb-cdc-dev];\nEXEC sp_addrolemember 'db_datawriter', [adf-abnb-cdc-dev];\nEXEC sp_addrolemember 'db_owner', 'adf-abnb-cdc-dev';\nCREATE MASTER KEY ENCRYPTION BY PASSWORD = 'abnbdev@123!';",
+					"query": "-- This is needed to setup linked service in ADF pipeline successfully for dedicated SQL pool\n-- Create a user for the ADF pipeline\nCREATE USER [adf-abnb-cdc-dev] FROM EXTERNAL PROVIDER;\n\nEXEC sp_addrolemember 'db_datareader', [adf-abnb-cdc-dev];\nEXEC sp_addrolemember 'db_datawriter', [adf-abnb-cdc-dev];\nEXEC sp_addrolemember 'db_owner', 'adf-abnb-cdc-dev';\nCREATE MASTER KEY ENCRYPTION BY PASSWORD = 'abnbcdcdev@123!';",
 					"metadata": {
 						"language": "sql"
 					},
