@@ -1,0 +1,47 @@
+{
+	"name": "pl_finalAirBnb",
+	"properties": {
+		"activities": [
+			{
+				"name": "exe_pl_runLoadCustomerDim",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_loadCustomerDim",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "exe_pl_runLoadBookingFact",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "exe_pl_runLoadCustomerDim",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_loadBookingFact",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
