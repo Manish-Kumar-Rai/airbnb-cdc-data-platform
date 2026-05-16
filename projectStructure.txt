@@ -1,0 +1,23 @@
+Project 2: AirBnB CDC Ingestion Data Pipeline (Industrial Project)
+
+Tech Stack: Python, Azure ADLS, Azure Cosmos DB, Azure Data Factory (ADF), Azure Synapse Analytics, SQL, n8n, Agentic AI, LLM (OpenAI)
+
+→ Customer Data Integration (Hourly): ADF pipeline reads customer data hourly from ADLS and performs SCD Type-1 merge into the customer_dim table in Synapse for real-time dimensional accuracy.
+
+→ CDC Event Processing: ADF consumes Cosmos DB Change Feed to capture incremental booking events, ensuring low-latency data ingestion for near-real-time analytics.
+
+→ Transform & Upsert: Booking events undergo transformation within ADF Data Flows (cleaning, enrichment, schema alignment) before performing upsert operations into target booking fact tables in Synapse.
+
+→ Pipeline Orchestration: Automated workflow in ADF with linked triggers, activity dependencies, and alerting for end-to-end pipeline execution and monitoring.
+
+→ AI-Driven Personalization (n8n + OpenAI):
+
+• Query processed insights dynamically from Synapse tables
+
+• Feed contextual data to OpenAI Chat Model via n8n workflow
+
+• Generate personalized, context-aware emails using custom user & system prompts
+
+• Dispatch emails via Outlook integration for automated leadership reporting
+
+→ Outcome: End-to-end serverless CDC pipeline enabling continuous AirBnB booking analytics and AI-powered customer communication automation.
