@@ -1,0 +1,129 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "syn-abnb-analytics-dev"
+		},
+		"syn-abnb-analytics-dev-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'syn-abnb-analytics-dev-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:syn-abnb-analytics-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"syn-abnb-analytics-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsabnbcdcdev.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/syn-abnb-analytics-dev-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('syn-abnb-analytics-dev-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/syn-abnb-analytics-dev-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('syn-abnb-analytics-dev-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sqlpool_booking_dev')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "polandcentral"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/synapse_table_creation')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "create schema airbnb;\n\n-- Create customer dim table\nIF OBJECT_ID('airbnb.dim_customer') IS NOT NULL DROP TABLE airbnb.dim_customer;\nCREATE TABLE airbnb.dim_customer (\n\tcustomer_id INT NOT NULL,\n\tfirst_name NVARCHAR(100) NOT NULL,\n\tlast_name NVARCHAR(100) NOT NULL,\n\temail NVARCHAR(255) NOT NULL,\n\tphone_number NVARCHAR(50) NULL,\n\taddress NVARCHAR(255) NULL,\n\tcity NVARCHAR(100) NULL,\n\tstate NVARCHAR(64) NULL,\n\tcountry NVARCHAR(64) NULL,\n\tzip_code NVARCHAR(20) NULL,\n\tsignup_date DATE NULL,\n\tlast_login DATETIME2 NULL,\n\ttotal_bookings INT NULL,\n\ttotal_spent DECIMAL(14,2) NULL,\n\tpreferred_language NVARCHAR(32) NULL,\n\treferral_code NVARCHAR(64) NULL,\n\taccount_status NVARCHAR(32) NULL\n);\n\n-- Create bookings fact table\nIF OBJECT_ID('airbnb.fact_booking') IS NOT NULL DROP TABLE airbnb.fact_booking;\nCREATE TABLE airbnb.fact_booking (\n\tbooking_id NVARCHAR(64) NOT NULL,\n\tcustomer_id INT NOT NULL,\n\tlisting_id NVARCHAR(64) NOT NULL,\n\tstatus NVARCHAR(16) NOT NULL,\n\tbooking_created_at DATE NOT NULL,\n\tcheckin_date DATE NOT NULL,\n\tcheckout_date DATE NOT NULL,\n\tnights INT NOT NULL,\n\tlead_time_days INT NULL,\n\tguests_adults INT NOT NULL,\n\tguests_children INT NOT NULL,\n\tguests_infants INT NOT NULL,\n\tprice_nightly DECIMAL(12,2) NOT NULL,\n\tcleaning_fee DECIMAL(12,2) NOT NULL,\n\ttotal_amount DECIMAL(14,2) NOT NULL,\n\tcurrency NVARCHAR(8) NOT NULL,\n\tcountry_code NVARCHAR(8) NULL,\n\tcity NVARCHAR(100) NULL,\n\tchannel NVARCHAR(16) NULL,\n\tdevice_type NVARCHAR(16) NULL,\n\tcancellation_ts DATETIME2 NULL,\n\tcancellation_reason NVARCHAR(64) NULL,\n\tupdated_at DATETIME2 NULL\n);\n\n-- Create country level aggregations\nCREATE TABLE airbnb.BookingCustomerAggregation (\n    country NVARCHAR(100),\n    total_bookings BIGINT,\n    confirmed_bookings BIGINT,\n    cancelled_bookings BIGINT,\n    total_amount DECIMAL(18,2),\n    confirmed_amount DECIMAL(18,2),\n    cancelled_amount DECIMAL(18,2),\n    cancellation_rate FLOAT,\n    last_booking_date DATETIME2,\n    first_booking_date DATETIME2,\n    avg_amount FLOAT,\n    confirmed_avg_amount FLOAT,\n    cancelled_avg_amount FLOAT,\n    min_amount DECIMAL(18,2),\n    max_amount DECIMAL(18,2),\n    distinct_customers BIGINT,\n    avg_stay_duration FLOAT\n)\nWITH (DISTRIBUTION = ROUND_ROBIN);\n\n-- Create stored procedure to popluate aggregation table after each run\nCREATE PROCEDURE airbnb.BookingAggregation\nAS\nBEGIN\n    TRUNCATE TABLE airbnb.BookingCustomerAggregation;\n\n    INSERT INTO airbnb.BookingCustomerAggregation\n    SELECT \n        c.country,\n        COUNT_BIG(*) AS total_bookings,\n        SUM(CASE WHEN b.status = 'Confirmed' THEN 1 ELSE 0 END) AS confirmed_bookings,\n        SUM(CASE WHEN b.status = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_bookings,\n        SUM(ISNULL(b.total_amount, 0)) AS total_amount,\n        SUM(CASE WHEN b.status = 'Confirmed' THEN ISNULL(b.total_amount, 0) ELSE 0 END) AS confirmed_amount,\n        SUM(CASE WHEN b.status = 'Cancelled' THEN ISNULL(b.total_amount, 0) ELSE 0 END) AS cancelled_amount,\n        CASE WHEN COUNT_BIG(*) = 0 THEN 0.0 \n             ELSE CAST(SUM(CASE WHEN b.status = 'Cancelled' THEN 1 ELSE 0 END) AS FLOAT) \n                  / CAST(COUNT_BIG(*) AS FLOAT) END AS cancellation_rate,\n        MAX(b.booking_created_at) AS last_booking_date,\n        MIN(b.booking_created_at) AS first_booking_date,\n        AVG(CAST(ISNULL(b.total_amount, 0) AS FLOAT)) AS avg_amount,\n        AVG(CASE WHEN b.status = 'Confirmed' THEN CAST(ISNULL(b.total_amount, 0) AS FLOAT) END) AS confirmed_avg_amount,\n        AVG(CASE WHEN b.status = 'Cancelled' THEN CAST(ISNULL(b.total_amount, 0) AS FLOAT) END) AS cancelled_avg_amount,\n        MIN(ISNULL(b.total_amount, 0)) AS min_amount,\n        MAX(ISNULL(b.total_amount, 0)) AS max_amount,\n        COUNT(DISTINCT b.customer_id) AS distinct_customers,\n        AVG(CAST(ISNULL(b.nights, 0) AS FLOAT)) AS avg_stay_duration\n    FROM \n        airbnb.fact_booking b\n    JOIN \n        airbnb.dim_customer c ON b.customer_id = c.customer_id\n    GROUP BY \n        c.country;\nEND;\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "sqlpool_booking_dev",
+						"poolName": "sqlpool_booking_dev"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		}
+	]
+}

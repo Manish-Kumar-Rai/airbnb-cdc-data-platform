@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "syn-abnb-analytics-dev"
+		},
+		"syn-abnb-analytics-dev-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:syn-abnb-analytics-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"syn-abnb-analytics-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://adlsabnbcdcdev.dfs.core.windows.net"
+		}
+	}
+}
