@@ -33,6 +33,64 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_finalAirBnb')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "exe_pl_runLoadCustomerDim",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_loadCustomerDim",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "exe_pl_runLoadBookingFact",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "exe_pl_runLoadCustomerDim",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_loadBookingFact",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_loadCustomerDim')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_loadBookingFact')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_loadBookingFact')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -888,7 +946,32 @@
 						"     allowCopyCommand: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> synapseBookingFactWrite"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          booking_id,",
+						"          customer_id,",
+						"          listing_id,",
+						"          status,",
+						"          booking_created_at,",
+						"          checkin_date,",
+						"          checkout_date,",
+						"          nights,",
+						"          lead_time_days,",
+						"          guests_adults,",
+						"          guests_children,",
+						"          guests_infants,",
+						"          price_nightly,",
+						"          cleaning_fee,",
+						"          total_amount,",
+						"          currency,",
+						"          country_code,",
+						"          city,",
+						"          channel,",
+						"          device_type,",
+						"          cancellation_ts,",
+						"          cancellation_reason,",
+						"          updated_at",
+						"     )) ~> synapseBookingFactWrite"
 					]
 				}
 			},
