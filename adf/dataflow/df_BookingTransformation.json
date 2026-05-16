@@ -177,7 +177,32 @@
 				"     allowCopyCommand: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> synapseBookingFactWrite"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          booking_id,",
+				"          customer_id,",
+				"          listing_id,",
+				"          status,",
+				"          booking_created_at,",
+				"          checkin_date,",
+				"          checkout_date,",
+				"          nights,",
+				"          lead_time_days,",
+				"          guests_adults,",
+				"          guests_children,",
+				"          guests_infants,",
+				"          price_nightly,",
+				"          cleaning_fee,",
+				"          total_amount,",
+				"          currency,",
+				"          country_code,",
+				"          city,",
+				"          channel,",
+				"          device_type,",
+				"          cancellation_ts,",
+				"          cancellation_reason,",
+				"          updated_at",
+				"     )) ~> synapseBookingFactWrite"
 			]
 		}
 	}
