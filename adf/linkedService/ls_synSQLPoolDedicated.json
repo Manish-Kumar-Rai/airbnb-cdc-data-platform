@@ -1,0 +1,14 @@
+{
+	"name": "ls_synSQLPoolDedicated",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDW",
+		"typeProperties": {
+			"server": "syn-abnb-analytics-dev.sql.azuresynapse.net",
+			"database": "sqlpool_booking_dev",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SystemAssignedManagedIdentity"
+		}
+	}
+}
