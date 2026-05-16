@@ -10,6 +10,11 @@
 *.userosscache
 *.sln.docstates
 *.env
+venv/
+
+# my files
+AirBnB_CDC_Data_Ingestion_Project/
+*.pdf
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
